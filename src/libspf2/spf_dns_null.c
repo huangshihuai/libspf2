@@ -77,6 +77,10 @@ SPF_dns_null_new(SPF_dns_server_t *spf_dns_server_below,
     spf_dns_server->layer_below  = spf_dns_server_below;
 	spf_dns_server->name         = name;
 	spf_dns_server->debug        = debug;
+#ifdef HAVE_RESOLV_H
+	spf_dns_server->ns_count	= 0;
+	memset(spf_dns_server->nsaddr_list, 0, sizeof(spf_dns_server->nsaddr_list));
+#endif
 
     return spf_dns_server;
 }

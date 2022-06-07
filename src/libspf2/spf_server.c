@@ -191,6 +191,20 @@ SPF_server_new_dns(SPF_dns_server_t *dns, int debug)
 	return sp;
 }
 
+SPF_errcode_t
+SPF_server_reset_ns(SPF_server_t *sp)
+{
+	SPF_ASSERT_NOTNULL(sp);
+	return SPF_dns_reset_ns(sp->resolver);
+}
+
+SPF_errcode_t
+SPF_server_add_ns(SPF_server_t *sp, const char* ns, const int ns_port)
+{
+	SPF_ASSERT_NOTNULL(sp);
+	return SPF_dns_setup_ns(sp->resolver, ns, ns_port);
+}
+
 /**
  * This function destroys the DNS layer as well.
  * If the (custom) DNS layer has no destructor,

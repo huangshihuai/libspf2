@@ -111,7 +111,6 @@
 #endif
 
 
-
 #define TRUE 1
 #define FALSE 0
 
@@ -357,6 +356,7 @@ int main( int argc, char *argv[] )
 	const char		*partial_result;
 	char			*result = NULL;
 	int				 result_len = 0;
+	SPF_errcode_t	ret = SPF_E_SUCCESS;
 
 	opts = (SPF_client_options_t *)malloc(sizeof(SPF_client_options_t));
 	memset(opts, 0, sizeof(SPF_client_options_t));
@@ -497,6 +497,10 @@ int main( int argc, char *argv[] )
 	 */
 
 	spf_server = SPF_server_new(SPF_DNS_CACHE, opts->debug);
+	ret = SPF_server_add_ns(spf_server, "8.8.8.8", 53);
+	if (ret != SPF_E_SUCCESS && ret != SPF_E_NS_FULL) {
+		FAIL_ERROR;
+	}
 
 	if ( opts->rec_dom )
 		SPF_server_set_rec_dom( spf_server, opts->rec_dom );

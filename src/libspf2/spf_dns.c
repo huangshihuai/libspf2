@@ -298,3 +298,46 @@ SPF_dns_get_client_dom( SPF_dns_server_t *spf_dns_server,
 
 	return strdup( "unknown" );
 }
+
+SPF_errcode_t	SPF_dns_reset_ns(SPF_dns_server_t *spf_dns_server)
+{
+#ifdef HAVE_RESOLV_H
+	SPF_ASSERT_NOTNULL(spf_dns_server);
+	spf_dns_server->ns_count = 0;
+	memset(spf_dns_server->nsaddr_list, 0, sizeof(spf_dns_server->nsaddr_list));
+	if (spf_dns_server->layer_below)
+		return SPF_dns_reset_ns(spf_dns_server->layer_below);
+	return SPF_E_SUCCESS;
+#else
+	return SPF_E_NOT_CONFIG;
+#endif
+}
+
+SPF_errcode_t	SPF_dns_setup_ns( SPF_dns_server_t *spf_dns_server, const char* ns, const int ns_port)
+{
+#ifdef HAVE_RESOLV_H
+	SPF_ASSERT_NOTNULL(spf_dns_server);
+	if (NULL == ns) {
+		return SPF_E_INVALID_OPT;
+	}
+	if (spf_dns_server->ns_count >= MAXNS) {
+		return SPF_E_NS_FULL;
+	}
+	struct sockaddr_in *ns_addr = &(spf_dns_server->nsaddr_list[spf_dns_server->ns_count]);
+	if (0 == inet_aton(ns, &(ns_addr->sin_addr))) {
+		return SPF_E_INVALID_IP4;
+	}
+	ns_addr->sin_family = AF_INET;
+	ns_addr->sin_port = htons(ns_port);
+	spf_dns_server->ns_count++;
+
+	// If setup the next dns layer, the ns record should be set.
+	if (spf_dns_server->layer_below)
+		return SPF_dns_setup_ns(spf_dns_server->layer_below, ns, ns_port);
+
+	SPF_infof("Setup NS Record Success, Layer: %s", spf_dns_server->name);
+	return SPF_E_SUCCESS;
+#else
+	return SPF_E_NOT_CONFIG;
+#endif
+}

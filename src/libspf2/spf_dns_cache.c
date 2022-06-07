@@ -519,6 +519,10 @@ SPF_dns_cache_new(SPF_dns_server_t *layer_below,
     spf_dns_server->layer_below = layer_below;
     spf_dns_server->name        = name;
     spf_dns_server->debug       = debug;
+#ifdef HAVE_RESOLV_H
+	spf_dns_server->ns_count	= 0;
+	memset(spf_dns_server->nsaddr_list, 0, sizeof(spf_dns_server->nsaddr_list));
+#endif
 
     spfhook = SPF_voidp2spfhook( spf_dns_server->hook );
 

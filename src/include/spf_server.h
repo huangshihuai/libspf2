@@ -91,6 +91,10 @@ SPF_errcode_t	 SPF_server_get_record(SPF_server_t *spf_server,
 					SPF_response_t *spf_response,
 					SPF_record_t **spf_recordp);
 
+SPF_errcode_t	SPF_server_add_ns(SPF_server_t *sp, const char* ns, const int ns_port);
+
+SPF_errcode_t	SPF_server_reset_ns(SPF_server_t *sp);
+
 /**
  * Prototypes for the various maximum accessors.
  */

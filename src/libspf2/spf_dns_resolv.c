@@ -266,6 +266,15 @@ SPF_dns_resolv_lookup(SPF_dns_server_t *spf_dns_server,
 	else {
 		res_state = (struct __res_state *)res_spec;
 	}
+#ifdef HAVE_RESOLV_H
+	// spf_server handlers with multiple different ns_addr should override nsaddr_list.
+	res_state->nscount = 0;
+	for (i = 0; i < spf_dns_server->ns_count && i < MAXNS; ++i) {
+		res_state->nsaddr_list[i] = spf_dns_server->nsaddr_list[i];
+		res_state->nscount++;
+	}
+#endif
+
 #endif
 
 	responselen = 2048;
@@ -646,6 +655,10 @@ SPF_dns_resolv_new(SPF_dns_server_t *layer_below,
 	spf_dns_server->layer_below = layer_below;
 	spf_dns_server->name        = name;
 	spf_dns_server->debug       = debug;
+#ifdef HAVE_RESOLV_H
+	spf_dns_server->ns_count	= 0;
+	memset(spf_dns_server->nsaddr_list, 0, sizeof(spf_dns_server->nsaddr_list));
+#endif
 
 	return spf_dns_server;
 }

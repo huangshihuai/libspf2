@@ -14,7 +14,9 @@
  */
 
 
-
+#ifdef HAVE_RESOLV_H
+# include <resolv.h>       /* dn_skipname */
+#endif
 
 #ifndef INC_SPF_DNS
 #define INC_SPF_DNS
@@ -152,6 +154,10 @@ struct SPF_dns_server_struct
     const char			*name;		/* name of the layer		*/
 	int					 debug;
     void				*hook;		/* server-specific data */
+#ifdef HAVE_RESOLV_H
+	int					ns_count;
+	struct sockaddr_in  nsaddr_list[MAXNS];
+#endif
 };
 
 
@@ -177,5 +183,7 @@ SPF_dns_rr_t	*SPF_dns_rlookup6( SPF_dns_server_t *spf_dns_server,
 char		*SPF_dns_get_client_dom(SPF_dns_server_t *spf_dns_server,
 				SPF_request_t *sr);
 
+SPF_errcode_t	SPF_dns_setup_ns( SPF_dns_server_t *spf_dns_server, const char* ns, const int ns_port);
+SPF_errcode_t	SPF_dns_reset_ns(SPF_dns_server_t *spf_dns_server);
 
 #endif
